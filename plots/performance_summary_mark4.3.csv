@@ -1,0 +1,11 @@
+# Performance Summary for mark4.3
+
+Metric,Score
+Accuracy,0.9
+ROC AUC,0.96835
+
+# Class-wise Metrics
+
+Class,Precision,Recall,F1-Score
+construction,0.8773584905660378,0.93,0.9029126213592233
+others,0.925531914893617,0.87,0.8969072164948454
