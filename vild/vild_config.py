@@ -126,7 +126,19 @@ class AudioViLDConfig:
         # val(99개) 스윕 결과 0.47~0.49가 accuracy 동률(0.818) -> dog recall이 가장 높은 0.47 채택
         # (감지 용도 기준). val로 고른 0.47의 test(97개) 성능: accuracy 0.866, macro F1 0.866,
         # dog R 0.84, others R 0.90, FPR 0.104 -> 정제 전(0.85/FPR 0.14)보다 개선.
-        self.target_decision_threshold = 0.45
+        # [mark4.3 선정 2026-08-02] 0.45 -> 0.31. construction 학습 완료 후 val(430) 스윕
+        # (0.05~0.95, 0.01 간격)으로 재선정. 0.45는 mark4.8에서 물려받은 값이라 무관한 운영점이었음.
+        # val 재현 검증: thr=0.45 재계산 예측이 저장된 Predicted Label과 430/430 일치(코랩 실행값 확인).
+        # accuracy 최고(0.9558) 구간은 (0.3001, 0.3286] 하나뿐이고 폭 0.0285, 중앙 0.3143.
+        # 구간 안의 0.31/0.32 중 중앙에 더 가까운 0.31 채택(플래토 폭 기준, 4.7/4.6/4.2/4.1과 동일 절차).
+        # val 성능: accuracy 0.9558 / macro F1 0.9573 / construction R 0.9907 P 0.9261 / others FPR 0.0791
+        #   - 0.45 대비: 미탐 10건 -> 2건, 오탐 15건 -> 17건. ROC AUC 0.9913(threshold 무관).
+        # ⚠️ 4.3은 다른 버전보다 오탐이 많음(4.1 FPR 0.000 / 4.7 0.009 / 4.6 0.028 대비 0.079).
+        #    others 쪽에 construction으로 강하게 오인되는 클립이 있어(오탐 상위 Prob 0.75~0.85)
+        #    threshold를 어디로 옮겨도 걸러지지 않음. construction이 AI Hub 카테고리 12종에서 와
+        #    내부 다양성이 큰 것이 원인으로 추정되며, test 결과로 출처·난이도 분해 예정.
+        #   - 대안 0.73: acc 0.9419, 오탐 7건, P 0.9657 (오탐 최소화 우선 시). 절차 일관성을 위해 미채택.
+        self.target_decision_threshold = 0.31
         # [삭제 2026-07-11] others_entropy_threshold 하드코딩(0.72) 제거.
         # 원인 규명: 2-class(mark4.x) 이진분류에서 정규화 entropy가 0.72 이하가 되려면
         # top_conf가 최소 약 0.80은 되어야 함(균등분산 최악 케이스 기준 실측 계산).
